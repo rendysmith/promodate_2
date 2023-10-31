@@ -43,17 +43,17 @@ def first_start():
     # title = soup.text
     # print(title)
 
-    while True:
-        try:
-            driver.execute_script("window.stop();")
-            title = driver.find_element(By.CSS_SELECTOR, "h1[id='pagetitle']").text
-            print(title)
-            return
-
-        except:
-            print('Error!')
-            driver.refresh()
-            time.sleep(15)
+    # while True:
+    #     try:
+    #         driver.execute_script("window.stop();")
+    #         title = driver.find_element(By.CSS_SELECTOR, "h1[id='pagetitle']").text
+    #         print(title)
+    #         return
+    #
+    #     except:
+    #         print('Error!')
+    #         driver.refresh()
+    #         time.sleep(15)
 
 
 def main():
