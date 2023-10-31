@@ -5,12 +5,46 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import os
+
+script_path = os.path.dirname(os.path.abspath(__file__))
+print(script_path)
+
+def first_start():
+    url = 'https://www.bethowen.ru/catalogue'
+
+    # Путь к исполняемому файлу Chrome WebDriver (chromedriver)
+    driver_path = f'{script_path}/chromedriver'
+
+    # Specify the path to the chromedriver executable
+    service = Service(executable_path=driver_path)
+
+    chrome_options = Options()
+    chrome_options.add_argument("--start-maximized")
+
+    # Initialize the Chrome driver
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+    driver.get(url)
+    print('************1*************')
+
+    while True:
+        try:
+            driver.execute_script("window.stop();")
+            title = driver.find_element(By.CSS_SELECTOR, "h1[id='pagetitle']").text
+            print(title)
+            return
+
+        except:
+            print('Error!')
+            driver.refresh()
+            time.sleep(3)
+
 
 def main():
     url = 'https://www.bethowen.ru/catalogue'
 
     # Путь к исполняемому файлу Chrome WebDriver (chromedriver)
-    driver_path = '/home/andy/Yandex.Disk/Python/WORK/Poker/chromedriver'
+    driver_path = f'{script_path}/chromedriver'
 
     # Specify the path to the chromedriver executable
     service = Service(executable_path=driver_path)
@@ -19,7 +53,6 @@ def main():
     prefs = {"profile.managed_default_content_settings.images": 2}
     chrome_options.add_experimental_option("prefs", prefs)
     chrome_options.add_argument("--start-maximized")
-
 
     # Initialize the Chrome driver
     driver = webdriver.Chrome(service=service, options=chrome_options)
@@ -33,23 +66,23 @@ def main():
     #driver.set_window_size(int(width * 0.33), int(height * 0.33))
     #driver.implicitly_wait(10)
     # Открываем страницу Google
-    driver.get(url)
-
-    wait = WebDriverWait(driver, 20)  # 10 секунд - максимальное время ожидания
-
-    # Ожидаем, пока элемент по CSS-селектору не станет видимым
-    # element = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "h1[id='pagetitle']")))
-    # print(element)
-
-    while True:
-        try:
-            title = driver.find_element(By.CSS_SELECTOR, "h1[id='pagetitle']").text
-            print(title)
-            break
-        except:
-            print('Error!')
-            driver.execute_script("window.stop();")
-            time.sleep(3)
+    # driver.get(url)
+    #
+    # wait = WebDriverWait(driver, 20)  # 10 секунд - максимальное время ожидания
+    #
+    # # Ожидаем, пока элемент по CSS-селектору не станет видимым
+    # # element = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "h1[id='pagetitle']")))
+    # # print(element)
+    #
+    # while True:
+    #     try:
+    #         title = driver.find_element(By.CSS_SELECTOR, "h1[id='pagetitle']").text
+    #         print(title)
+    #         break
+    #     except:
+    #         print('Error!')
+    #         driver.execute_script("window.stop();")
+    #         time.sleep(3)
 
 
     urls = ['https://www.bethowen.ru/catalogue/dogs/korma/syxoi/korm-dlya-sobak-pro-dog-dlya-srednikh-porod-s-chuvstvitelnym-pishchevareniem-yagnenok-sukh-12kg/',
@@ -95,4 +128,5 @@ def main():
     driver.quit()
 
 if __name__ == "__main__":
+    first_start()
     main()
