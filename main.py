@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from bs4 import BeautifulSoup  # Для анализа HTML
 import time
 import os
 
@@ -20,12 +21,27 @@ def first_start():
     service = Service(executable_path=driver_path)
 
     chrome_options = Options()
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--start-maximized")
 
     # Initialize the Chrome driver
     driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.get(url)
     print('************1*************')
+
+    html = driver.page_source
+
+    # Теперь вы можете использовать BeautifulSoup для анализа HTML
+    soup = BeautifulSoup(html, 'html.parser')
+
+    # Найдите и распечатайте текст с веб-сайта (например, заголовок страницы)
+    title = soup.find('title')
+    if title:
+        print("Заголовок страницы:", title.text)
+        return
+
+    # title = soup.text
+    # print(title)
 
     while True:
         try:
@@ -37,7 +53,7 @@ def first_start():
         except:
             print('Error!')
             driver.refresh()
-            time.sleep(3)
+            time.sleep(15)
 
 
 def main():
@@ -53,6 +69,7 @@ def main():
     prefs = {"profile.managed_default_content_settings.images": 2}
     chrome_options.add_experimental_option("prefs", prefs)
     chrome_options.add_argument("--start-maximized")
+    chrome_options.add_argument("--headless")
 
     # Initialize the Chrome driver
     driver = webdriver.Chrome(service=service, options=chrome_options)
@@ -84,7 +101,6 @@ def main():
     #         driver.execute_script("window.stop();")
     #         time.sleep(3)
 
-
     urls = ['https://www.bethowen.ru/catalogue/dogs/korma/syxoi/korm-dlya-sobak-pro-dog-dlya-srednikh-porod-s-chuvstvitelnym-pishchevareniem-yagnenok-sukh-12kg/',
             'https://www.bethowen.ru/catalogue/dogs/korma/syxoi/korm-dlya-sobak-royal-canin-size-x-small-adult-dlya-miniatyurnykh-porod-ot-do-8-let/',
             'https://www.bethowen.ru/catalogue/dogs/korma/syxoi/korm-dlya-shchenkov-pro-dog-dlya-zdorovogo-rosta-i-energii-indeyka-sukh/?oid=516750']
@@ -93,36 +109,70 @@ def main():
         print('======================================================')
         print(url)
         driver.get(url)
-        #city = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "span[class='getPopRegional']")))
-        while True:
-            wait = WebDriverWait(driver, 10)
-            city_text = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "span[class='getPopRegional']"))).text
-            print(f'city_text, >>>{city_text}<<<')
-            if '' != city_text:
-                break
-            driver.refresh()
-            time.sleep(5)
+        print('html')
+        html = driver.page_source
 
-        # city_text = driver.find_element(By.CSS_SELECTOR, "span[class='getPopRegional']").text
-        # print('city_text', city_text)
+        # Теперь вы можете использовать BeautifulSoup для анализа HTML
+        soup = BeautifulSoup(html, 'html.parser')
+        #print(soup)
 
-        name_text = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "h1[class='preview_text']"))).text
-        print('name_text', name_text)
+        # Найдите и распечатайте текст с веб-сайта (например, заголовок страницы)
+        #price = float(soup.find('input', {'name': "notify_rate"}).get('value'))
+        city_text = soup.find('span', class_='getPopRegional')
+        print('city_text', city_text.text)
 
-        # name_text = driver.find_element(By.CSS_SELECTOR, "h1[class='preview_text']").text
-        # print('name_text', name_text)
-        code_text = driver.find_element(By.CSS_SELECTOR, "div[class='tw-mr-4']").text
-        print('code_text', code_text)
+        #name_text = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "h1[class='preview_text']"))).text
+        name_text = soup.find('h1', class_='preview_text')
+        print('name_text', name_text.text)
 
-        packs = driver.find_elements(By.CSS_SELECTOR, "li[data-class='offer-tabs-choose']")
+        #code_text = driver.find_element(By.CSS_SELECTOR, "div[class='tw-mr-4']").text
+        code_text = soup.find('div', class_='tw-mr-4')
+        print('code_text', code_text.text)
+
+        #packs = driver.find_elements(By.CSS_SELECTOR, "li[data-class='offer-tabs-choose']")
+        packs = soup.find_all('li', {'data-class': 'offer-tabs-choose'})
+        print(len(packs))
 
         for pack in packs:
-            if "active" in pack.get_attribute("class"):
+            if "active" in str(pack):
                 resize = pack.text
                 print('resize', resize)
                 break
 
-        time.sleep(5)
+        continue
+
+        #
+        #
+        # #city = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "span[class='getPopRegional']")))
+        # while True:
+        #     wait = WebDriverWait(driver, 10)
+        #     city_text = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "span[class='getPopRegional']"))).text
+        #     print(f'city_text, >>>{city_text}<<<')
+        #     if '' != city_text:
+        #         break
+        #     driver.refresh()
+        #     time.sleep(5)
+        #
+        # # city_text = driver.find_element(By.CSS_SELECTOR, "span[class='getPopRegional']").text
+        # # print('city_text', city_text)
+        #
+        # name_text = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "h1[class='preview_text']"))).text
+        # print('name_text', name_text)
+        #
+        # # name_text = driver.find_element(By.CSS_SELECTOR, "h1[class='preview_text']").text
+        # # print('name_text', name_text)
+        # code_text = driver.find_element(By.CSS_SELECTOR, "div[class='tw-mr-4']").text
+        # print('code_text', code_text)
+        #
+        # packs = driver.find_elements(By.CSS_SELECTOR, "li[data-class='offer-tabs-choose']")
+        #
+        # for pack in packs:
+        #     if "active" in pack.get_attribute("class"):
+        #         resize = pack.text
+        #         print('resize', resize)
+        #         break
+        #
+        # time.sleep(5)
 
     # Закрываем браузер
     driver.quit()
